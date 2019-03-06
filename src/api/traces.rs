@@ -48,7 +48,7 @@ impl<T: Transport> Traces<T> {
     pub fn replay_block_transactions(&self, block: BlockNumber, trace_type: Vec<TraceType>) -> CallFuture<BlockTrace, T::Out> {
         let block = helpers::serialize(&block);
         let trace_type = helpers::serialize(&trace_type);
-        CallFuture::new(self.transport.execute("trace_replayBlockTransaction", vec![block, trace_type]))
+        CallFuture::new(self.transport.execute("trace_replayBlockTransactions", vec![block, trace_type]))
     }
 
     /// Returns traces created at given block
