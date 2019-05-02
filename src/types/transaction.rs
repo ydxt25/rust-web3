@@ -63,7 +63,7 @@ pub struct Receipt {
     pub status: Option<U64>,
     /// Logs bloom
     #[serde(rename = "logsBloom")]
-    pub logs_bloom: H2048,
+    pub logs_bloom: Option<H2048>,
 }
 
 /// Raw bytes of a signed, but not yet sent transaction
