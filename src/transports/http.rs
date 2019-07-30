@@ -141,8 +141,16 @@ impl BatchTransport for Http {
 
 /// Parse bytes RPC response into `Result`.
 fn single_response<T: Deref<Target = [u8]>>(response: T) -> error::Result<rpc::Value> {
-    let response = serde_json::from_slice(&*response).map_err(|e| Error::InvalidResponse(format!("{:?}", e)))?;
-
+    // For reasons beyond my comprehension, the id will fail to deserialize when
+    // this library is used from graph-node, but it works just fine when I test
+    // it in isolation. I can't see a reason to upstream this hack, and also
+    // can't get graph-node to work without it. Id is useless over http anyway.
+    let mut json: serde_json::Value =
+        serde_json::from_slice(&*response).map_err(|e| Error::InvalidResponse(format!("{:?}", e)))?;
+    if let Some(id) = json.get_mut("id") {
+        id.take();
+    }
+    let response = serde_json::from_value(json).map_err(|e| Error::InvalidResponse(format!("{:?}", e)))?;
     match response {
         rpc::Response::Single(output) => helpers::to_result_from_output(output),
         _ => Err(Error::InvalidResponse("Expected single, got batch.".into())),
@@ -151,8 +159,16 @@ fn single_response<T: Deref<Target = [u8]>>(response: T) -> error::Result<rpc::V
 
 /// Parse bytes RPC batch response into `Result`.
 fn batch_response<T: Deref<Target = [u8]>>(response: T) -> error::Result<Vec<error::Result<rpc::Value>>> {
-    let response = serde_json::from_slice(&*response).map_err(|e| Error::InvalidResponse(format!("{:?}", e)))?;
-
+    // See comment in `single_response`.
+    let mut json: Vec<serde_json::Value> =
+        serde_json::from_slice(&*response).map_err(|e| Error::InvalidResponse(format!("{:?}", e)))?;
+    for value in &mut json {
+        if let Some(id) = value.get_mut("id") {
+            id.take();
+        }
+    }
+    let response = serde_json::from_value(serde_json::Value::Array(json))
+        .map_err(|e| Error::InvalidResponse(format!("{:?}", e)))?;
     match response {
         rpc::Response::Batch(outputs) => Ok(outputs.into_iter().map(helpers::to_result_from_output).collect()),
         _ => Err(Error::InvalidResponse("Expected batch, got single.".into())),
