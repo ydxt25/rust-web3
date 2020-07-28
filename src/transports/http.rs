@@ -12,7 +12,7 @@ use std::ops::Deref;
 use std::sync::atomic::{self, AtomicUsize};
 use std::sync::Arc;
 
-use self::hyper::header::HeaderValue;
+use self::hyper::header::{HeaderMap, HeaderValue};
 use self::url::Url;
 use crate::helpers;
 use crate::rpc;
@@ -69,8 +69,15 @@ pub type FetchTask<F> = Response<F, hyper::Chunk>;
 pub struct Http {
     id: Arc<AtomicUsize>,
     url: hyper::Uri,
-    basic_auth: Option<HeaderValue>,
+    headers: Option<HeaderMap>,
     write_sender: mpsc::UnboundedSender<(hyper::Request<hyper::Body>, Pending)>,
+}
+
+struct EventLoopParams<'a, 'b> {
+    url: &'a str,
+    max_parallel: usize,
+    handle: &'b reactor::Handle,
+    headers: Option<HeaderMap>,
 }
 
 impl Http {
@@ -78,6 +85,32 @@ impl Http {
     /// NOTE: Dropping event loop handle will stop the transport layer!
     pub fn new(url: &str) -> Result<(EventLoopHandle, Self)> {
         Self::with_max_parallel(url, DEFAULT_MAX_PARALLEL)
+    }
+
+    /// Create a HTTP transport with the given URL and spawn an event loop in a separate thread.
+    /// You can provide custom headers to be passed to the HTTP requests.
+    /// NOTE: Dropping event loop handle will stop the transport layer!
+    pub fn with_headers(url: &str, headers: HeaderMap) -> Result<(EventLoopHandle, Self)> {
+        Self::with_max_parallel_and_headers(url, DEFAULT_MAX_PARALLEL, headers)
+    }
+    /// Create a HTTP transport with the given URL and spawn an event loop in a separate thread.
+    /// You can set a maximal number of parallel requests.
+    /// You can provide custom headers to be passed to the HTTP requests.
+    /// NOTE: Dropping event loop handle will stop the transport layer!
+    pub fn with_max_parallel_and_headers(
+        url: &str,
+        max_parallel: usize,
+        headers: HeaderMap,
+    ) -> Result<(EventLoopHandle, Self)> {
+        let url = url.to_owned();
+        EventLoopHandle::spawn(move |handle| {
+            Self::with_event_loop_internal(EventLoopParams {
+                url: &url,
+                handle,
+                max_parallel,
+                headers: Some(headers),
+            })
+        })
     }
 
     /// Create new HTTP transport with given URL and spawn an event loop in a separate thread.
@@ -90,6 +123,22 @@ impl Http {
 
     /// Create new HTTP transport with given URL and existing event loop handle.
     pub fn with_event_loop(url: &str, handle: &reactor::Handle, max_parallel: usize) -> Result<Self> {
+        Self::with_event_loop_internal(EventLoopParams {
+            url,
+            handle,
+            max_parallel,
+            headers: None,
+        })
+    }
+
+    fn with_event_loop_internal(params: EventLoopParams) -> Result<Self> {
+        let EventLoopParams {
+            url,
+            handle,
+            max_parallel,
+            mut headers,
+        } = params;
+
         let (write_sender, write_receiver) = mpsc::unbounded();
 
         #[cfg(feature = "tls")]
@@ -123,21 +172,30 @@ impl Http {
                 }),
         );
 
-        let basic_auth = {
-            let url = Url::parse(url)?;
-            let user = url.username();
-            let auth = format!("{}:{}", user, url.password().unwrap_or_default());
-            if &auth == ":" {
-                None
-            } else {
-                Some(HeaderValue::from_str(&format!("Basic {}", base64::encode(&auth)))?)
-            }
-        };
+        // Check if there is basic auth information in the URL
+        let parsed_url = Url::parse(url)?;
+        let basic_auth = format!(
+            "{}:{}",
+            parsed_url.username(),
+            parsed_url.password().unwrap_or_default()
+        );
+        if basic_auth != ":" {
+            // Add Authorization header for basic auth but ONLY if the
+            // header isn't already present in the provided headers
+            let basic_auth_header = HeaderValue::from_str(&format!("Basic {}", base64::encode(&basic_auth)))?;
+
+            headers = Some(headers.unwrap_or_default()).map(|mut h| {
+                h.entry(hyper::header::AUTHORIZATION)
+                    .unwrap()
+                    .or_insert(basic_auth_header);
+                h
+            });
+        }
 
         Ok(Http {
             id: Default::default(),
             url: url.parse()?,
-            basic_auth,
+            headers,
             write_sender,
         })
     }
@@ -163,10 +221,9 @@ impl Http {
         if len < MAX_SINGLE_CHUNK {
             req.headers_mut().insert(hyper::header::CONTENT_LENGTH, len.into());
         }
-        // Send basic auth header
-        if let Some(ref basic_auth) = self.basic_auth {
-            req.headers_mut()
-                .insert(hyper::header::AUTHORIZATION, basic_auth.clone());
+        // Add headers
+        if let Some(ref headers) = self.headers {
+            req.headers_mut().extend(headers.clone())
         }
         let (tx, rx) = futures::oneshot();
         let result = self
@@ -229,7 +286,7 @@ fn single_response<T: Deref<Target = [u8]>>(response: T) -> Result<rpc::Value> {
 /// Parse bytes RPC batch response into `Result`.
 fn batch_response<T: Deref<Target = [u8]>>(response: T) -> Result<Vec<Result<rpc::Value>>> {
     // See comment in `single_response`.
-    let mut json: Vec<serde_json::Value> = 
+    let mut json: Vec<serde_json::Value> =
         serde_json::from_slice(&*response).map_err(|e| Error::InvalidResponse(format!("{:?}", e)))?;
     for value in &mut json {
         if let Some(id) = value.get_mut("id") {
@@ -237,7 +294,7 @@ fn batch_response<T: Deref<Target = [u8]>>(response: T) -> Result<Vec<Result<rpc
         }
     }
     let response = serde_json::from_value(serde_json::Value::Array(json))
-                                .map_err(|e| Error::InvalidResponse(format!("{:?}", e)))?;
+        .map_err(|e| Error::InvalidResponse(format!("{:?}", e)))?;
     match response {
         rpc::Response::Batch(outputs) => Ok(outputs.into_iter().map(helpers::to_result_from_output).collect()),
         _ => Err(Error::InvalidResponse("Expected batch, got single.".into())),
@@ -251,15 +308,17 @@ mod tests {
     #[test]
     fn http_supports_basic_auth_with_user_and_password() {
         let http = Http::new("https://user:password@127.0.0.1:8545");
+
+        let mut expected_headers = HeaderMap::new();
+        expected_headers.insert(
+            hyper::header::AUTHORIZATION,
+            HeaderValue::from_static("Basic dXNlcjpwYXNzd29yZA=="),
+        );
+
         assert!(http.is_ok());
+
         match http {
-            Ok((_, transport)) => {
-                assert!(transport.basic_auth.is_some());
-                assert_eq!(
-                    transport.basic_auth,
-                    Some(HeaderValue::from_static("Basic dXNlcjpwYXNzd29yZA=="))
-                )
-            }
+            Ok((_, transport)) => assert_eq!(transport.headers, Some(expected_headers)),
             Err(_) => assert!(false, ""),
         }
     }
@@ -267,15 +326,17 @@ mod tests {
     #[test]
     fn http_supports_basic_auth_with_user_no_password() {
         let http = Http::new("https://username:@127.0.0.1:8545");
+
+        let mut expected_headers = HeaderMap::new();
+        expected_headers.insert(
+            hyper::header::AUTHORIZATION,
+            HeaderValue::from_static("Basic dXNlcm5hbWU6"),
+        );
+
         assert!(http.is_ok());
+
         match http {
-            Ok((_, transport)) => {
-                assert!(transport.basic_auth.is_some());
-                assert_eq!(
-                    transport.basic_auth,
-                    Some(HeaderValue::from_static("Basic dXNlcm5hbWU6"))
-                )
-            }
+            Ok((_, transport)) => assert_eq!(transport.headers, Some(expected_headers)),
             Err(_) => assert!(false, ""),
         }
     }
@@ -283,15 +344,51 @@ mod tests {
     #[test]
     fn http_supports_basic_auth_with_only_password() {
         let http = Http::new("https://:password@127.0.0.1:8545");
+
+        let mut expected_headers = HeaderMap::new();
+        expected_headers.insert(
+            hyper::header::AUTHORIZATION,
+            HeaderValue::from_static("Basic OnBhc3N3b3Jk"),
+        );
+
         assert!(http.is_ok());
         match http {
-            Ok((_, transport)) => {
-                assert!(transport.basic_auth.is_some());
-                assert_eq!(
-                    transport.basic_auth,
-                    Some(HeaderValue::from_static("Basic OnBhc3N3b3Jk"))
-                )
-            }
+            Ok((_, transport)) => assert_eq!(transport.headers, Some(expected_headers)),
+            Err(_) => assert!(false, ""),
+        }
+    }
+
+    #[test]
+    fn http_supports_custom_headers() {
+        let mut expected_headers = HeaderMap::new();
+        expected_headers.insert(
+            hyper::header::CONTENT_TYPE,
+            HeaderValue::from_static("application/json"),
+        );
+
+        let http = Http::with_headers("https://127.0.0.1:8545", expected_headers.clone());
+
+        assert!(http.is_ok());
+        match http {
+            Ok((_, transport)) => assert_eq!(transport.headers, Some(expected_headers)),
+            Err(_) => assert!(false, ""),
+        }
+    }
+
+    #[test]
+    fn http_basic_auth_does_not_override_authorization_header() {
+        let mut expected_headers = HeaderMap::new();
+        expected_headers.insert(hyper::header::AUTHORIZATION, HeaderValue::from_static("Bearer foo"));
+        expected_headers.insert(
+            hyper::header::CONTENT_TYPE,
+            HeaderValue::from_static("application/json"),
+        );
+
+        let http = Http::with_headers("https://username:password@127.0.0.1:8545", expected_headers.clone());
+
+        assert!(http.is_ok());
+        match http {
+            Ok((_, transport)) => assert_eq!(transport.headers, Some(expected_headers)),
             Err(_) => assert!(false, ""),
         }
     }
