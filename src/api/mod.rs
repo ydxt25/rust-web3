@@ -2,8 +2,8 @@
 
 mod accounts;
 mod eth;
-mod platon_filter;
-mod platon_subscribe;
+mod eth_filter;
+mod eth_subscribe;
 mod net;
 mod parity;
 mod parity_accounts;
