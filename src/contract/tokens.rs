@@ -204,7 +204,7 @@ impl Tokenizable for Address {
     }
 }
 
-macro_rules! platon_uint_tokenizable {
+macro_rules! eth_uint_tokenizable {
     ($uint: ident, $name: expr) => {
         impl Tokenizable for $uint {
             fn from_token(token: Token) -> Result<Self, Error> {
@@ -221,8 +221,8 @@ macro_rules! platon_uint_tokenizable {
     };
 }
 
-platon_uint_tokenizable!(U256, "U256");
-platon_uint_tokenizable!(U128, "U128");
+eth_uint_tokenizable!(U256, "U256");
+eth_uint_tokenizable!(U128, "U128");
 
 macro_rules! int_tokenizable {
     ($int: ident, $token: ident) => {

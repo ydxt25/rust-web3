@@ -65,7 +65,7 @@ enum SyncStateVariants {
     Boolean(bool),
 }
 
-// The `platon_syncing` method returns either `false` or an instance of the sync info object.
+// The `eth_syncing` method returns either `false` or an instance of the sync info object.
 // This doesn't play particularly well with the features exposed by `serde_derive`,
 // so we use the custom impls below to ensure proper behavior.
 impl<'de> Deserialize<'de> for SyncState {

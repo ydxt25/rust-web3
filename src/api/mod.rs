@@ -81,7 +81,7 @@ impl<T: Transport> Web3<T> {
     }
 
     /// Access filter methods from `eth` namespace
-    pub fn platon_filter(&self) -> platon_filter::EthFilter<T> {
+    pub fn eth_filter(&self) -> eth_filter::EthFilter<T> {
         self.api()
     }
 
@@ -121,7 +121,7 @@ impl<T: Transport> Web3<T> {
         F: IntoFuture<Item = Option<U64>, Error = Error>,
         V: confirm::ConfirmationCheck<Check = F>,
     {
-        confirm::wait_for_confirmations(self.eth(), self.platon_filter(), poll_interval, confirmations, check)
+        confirm::wait_for_confirmations(self.eth(), self.eth_filter(), poll_interval, confirmations, check)
     }
 
     /// Sends transaction and returns future resolved after transaction is confirmed
@@ -147,7 +147,7 @@ impl<T: Transport> Web3<T> {
 
 impl<T: DuplexTransport> Web3<T> {
     /// Access subscribe methods from `eth` namespace
-    pub fn platon_subscribe(&self) -> platon_subscribe::EthSubscribe<T> {
+    pub fn eth_subscribe(&self) -> eth_subscribe::EthSubscribe<T> {
         self.api()
     }
 }

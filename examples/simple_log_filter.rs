@@ -47,7 +47,7 @@ fn main() {
                         .build();
 
                     let event_future = web3
-                        .platon_filter()
+                        .eth_filter()
                         .create_logs_filter(filter)
                         .then(|filter| {
                             filter.unwrap().stream(time::Duration::from_secs(0)).for_each(|log| {

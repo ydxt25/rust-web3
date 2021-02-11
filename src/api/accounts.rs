@@ -59,10 +59,10 @@ impl<T: Transport> Accounts<T> {
     {
         let message = message.as_ref();
 
-        let mut platon_message = format!("\x19Ethereum Signed Message:\n{}", message.len()).into_bytes();
-        platon_message.extend_from_slice(message);
+        let mut eth_message = format!("\x19Ethereum Signed Message:\n{}", message.len()).into_bytes();
+        eth_message.extend_from_slice(message);
 
-        keccak256(&platon_message).into()
+        keccak256(&eth_message).into()
     }
 
     /// Sign arbitrary string data.

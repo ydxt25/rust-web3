@@ -36,7 +36,7 @@ impl<T: Transport> Traces<T> {
         CallFuture::new(self.transport.execute("trace_call", vec![req, trace_type, block]))
     }
 
-    /// Traces a call to `platon_sendRawTransaction` without making the call, returning the traces
+    /// Traces a call to `eth_sendRawTransaction` without making the call, returning the traces
     pub fn raw_transaction(&self, data: Bytes, trace_type: Vec<TraceType>) -> CallFuture<BlockTrace, T::Out> {
         let data = helpers::serialize(&data);
         let trace_type = helpers::serialize(&trace_type);
