@@ -14,8 +14,8 @@ mod web3;
 
 pub use self::accounts::{Accounts, SignTransactionFuture};
 pub use self::eth::Eth;
-pub use self::platon_filter::{BaseFilter, CreateFilter, EthFilter, FilterStream};
-pub use self::platon_subscribe::{EthSubscribe, SubscriptionId, SubscriptionResult, SubscriptionStream};
+pub use self::eth_filter::{BaseFilter, CreateFilter, EthFilter, FilterStream};
+pub use self::eth_subscribe::{EthSubscribe, SubscriptionId, SubscriptionResult, SubscriptionStream};
 pub use self::net::Net;
 pub use self::parity::Parity;
 pub use self::parity_accounts::ParityAccounts;
