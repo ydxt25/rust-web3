@@ -47,7 +47,7 @@ fn main() {
                         .build();
 
                     let event_future = web3
-                        .eth_subscribe()
+                        .platon_subscribe()
                         .subscribe_logs(filter)
                         .then(|sub| {
                             sub.unwrap().for_each(|log| {

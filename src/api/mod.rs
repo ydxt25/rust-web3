@@ -2,8 +2,8 @@
 
 mod accounts;
 mod eth;
-mod eth_filter;
-mod eth_subscribe;
+mod platon_filter;
+mod platon_subscribe;
 mod net;
 mod parity;
 mod parity_accounts;
@@ -14,8 +14,8 @@ mod web3;
 
 pub use self::accounts::{Accounts, SignTransactionFuture};
 pub use self::eth::Eth;
-pub use self::eth_filter::{BaseFilter, CreateFilter, EthFilter, FilterStream};
-pub use self::eth_subscribe::{EthSubscribe, SubscriptionId, SubscriptionResult, SubscriptionStream};
+pub use self::platon_filter::{BaseFilter, CreateFilter, EthFilter, FilterStream};
+pub use self::platon_subscribe::{EthSubscribe, SubscriptionId, SubscriptionResult, SubscriptionStream};
 pub use self::net::Net;
 pub use self::parity::Parity;
 pub use self::parity_accounts::ParityAccounts;
@@ -81,7 +81,7 @@ impl<T: Transport> Web3<T> {
     }
 
     /// Access filter methods from `eth` namespace
-    pub fn eth_filter(&self) -> eth_filter::EthFilter<T> {
+    pub fn platon_filter(&self) -> platon_filter::EthFilter<T> {
         self.api()
     }
 
@@ -121,7 +121,7 @@ impl<T: Transport> Web3<T> {
         F: IntoFuture<Item = Option<U64>, Error = Error>,
         V: confirm::ConfirmationCheck<Check = F>,
     {
-        confirm::wait_for_confirmations(self.eth(), self.eth_filter(), poll_interval, confirmations, check)
+        confirm::wait_for_confirmations(self.eth(), self.platon_filter(), poll_interval, confirmations, check)
     }
 
     /// Sends transaction and returns future resolved after transaction is confirmed
@@ -147,7 +147,7 @@ impl<T: Transport> Web3<T> {
 
 impl<T: DuplexTransport> Web3<T> {
     /// Access subscribe methods from `eth` namespace
-    pub fn eth_subscribe(&self) -> eth_subscribe::EthSubscribe<T> {
+    pub fn platon_subscribe(&self) -> platon_subscribe::EthSubscribe<T> {
         self.api()
     }
 }

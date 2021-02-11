@@ -265,7 +265,7 @@ mod tests {
                                 OwnedMessage::Ping(p) => Some(OwnedMessage::Pong(p)),
                                 OwnedMessage::Pong(_) => None,
                                 OwnedMessage::Text(t) => {
-                                    assert_eq!(t, r#"{"jsonrpc":"2.0","method":"eth_accounts","params":["1"],"id":1}"#);
+                                    assert_eq!(t, r#"{"jsonrpc":"2.0","method":"platon_accounts","params":["1"],"id":1}"#);
                                     Some(OwnedMessage::Text(
                                         r#"{"jsonrpc":"2.0","id":1,"result":"x"}"#.to_owned(),
                                     ))
@@ -286,7 +286,7 @@ mod tests {
         let ws = WebSocket::with_event_loop("ws://localhost:3000", &handle).unwrap();
 
         // when
-        let res = ws.execute("eth_accounts", vec![rpc::Value::String("1".into())]);
+        let res = ws.execute("platon_accounts", vec![rpc::Value::String("1".into())]);
 
         // then
         assert_eq!(eloop.run(res), Ok(rpc::Value::String("x".into())));

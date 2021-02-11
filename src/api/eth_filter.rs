@@ -52,7 +52,7 @@ impl<T: Transport, I: DeserializeOwned> Stream for FilterStream<T, I> {
                 FilterStreamState::WaitForInterval => {
                     let _ready = try_ready!(self.interval.poll().map_err(|_| Error::Unreachable));
                     let id = helpers::serialize(&self.base.id);
-                    let future = CallFuture::new(self.base.transport.execute("eth_getFilterChanges", vec![id]));
+                    let future = CallFuture::new(self.base.transport.execute("platon_getFilterChanges", vec![id]));
                     FilterStreamState::GetFilterChanges(future)
                 }
                 FilterStreamState::GetFilterChanges(ref mut future) => {
@@ -86,7 +86,7 @@ impl FilterInterface for LogsFilter {
     type Item = Log;
 
     fn constructor() -> &'static str {
-        "eth_newFilter"
+        "platon_newFilter"
     }
 }
 
@@ -98,7 +98,7 @@ impl FilterInterface for BlocksFilter {
     type Item = H256;
 
     fn constructor() -> &'static str {
-        "eth_newBlockFilter"
+        "platon_newBlockFilter"
     }
 }
 
@@ -110,7 +110,7 @@ impl FilterInterface for PendingTransactionsFilter {
     type Item = H256;
 
     fn constructor() -> &'static str {
-        "eth_newPendingTransactionFilter"
+        "platon_newPendingTransactionFilter"
     }
 }
 
@@ -140,7 +140,7 @@ impl<T: Transport, I> BaseFilter<T, I> {
     /// Will return logs that happened after previous poll.
     pub fn poll(&self) -> CallFuture<Option<Vec<I>>, T::Out> {
         let id = helpers::serialize(&self.id);
-        CallFuture::new(self.transport.execute("eth_getFilterChanges", vec![id]))
+        CallFuture::new(self.transport.execute("platon_getFilterChanges", vec![id]))
     }
 
     /// Returns the stream of items which automatically polls the server
@@ -158,7 +158,7 @@ impl<T: Transport, I> BaseFilter<T, I> {
 
     fn uninstall_internal(&self) -> CallFuture<bool, T::Out> {
         let id = helpers::serialize(&self.id);
-        CallFuture::new(self.transport.execute("eth_uninstallFilter", vec![id]))
+        CallFuture::new(self.transport.execute("platon_uninstallFilter", vec![id]))
     }
 
     /// Borrows the transport.
@@ -171,7 +171,7 @@ impl<T: Transport> BaseFilter<T, Log> {
     /// Returns future with all logs matching given filter
     pub fn logs(&self) -> CallFuture<Vec<Log>, T::Out> {
         let id = helpers::serialize(&self.id);
-        CallFuture::new(self.transport.execute("eth_getFilterLogs", vec![id]))
+        CallFuture::new(self.transport.execute("platon_getFilterLogs", vec![id]))
     }
 }
 
@@ -276,7 +276,7 @@ mod tests {
         };
 
         // then
-        transport.assert_request("eth_newFilter", &[r#"{"limit":10}"#.into()]);
+        transport.assert_request("platon_newFilter", &[r#"{"limit":10}"#.into()]);
         transport.assert_no_more_requests();
     }
 
@@ -315,10 +315,10 @@ mod tests {
         // then
         assert_eq!(result, Ok(vec![log]));
         transport.assert_request(
-            "eth_newFilter",
+            "platon_newFilter",
             &[r#"{"topics":[null,"0x0000000000000000000000000000000000000000000000000000000000000002"]}"#.into()],
         );
-        transport.assert_request("eth_getFilterLogs", &[r#""0x123""#.into()]);
+        transport.assert_request("platon_getFilterLogs", &[r#""0x123""#.into()]);
         transport.assert_no_more_requests();
     }
 
@@ -357,10 +357,10 @@ mod tests {
         // then
         assert_eq!(result, Ok(Some(vec![log])));
         transport.assert_request(
-            "eth_newFilter",
+            "platon_newFilter",
             &[r#"{"address":"0x0000000000000000000000000000000000000002"}"#.into()],
         );
-        transport.assert_request("eth_getFilterChanges", &[r#""0x123""#.into()]);
+        transport.assert_request("platon_getFilterChanges", &[r#""0x123""#.into()]);
         transport.assert_no_more_requests();
     }
 
@@ -378,7 +378,7 @@ mod tests {
         };
 
         // then
-        transport.assert_request("eth_newBlockFilter", &[]);
+        transport.assert_request("platon_newBlockFilter", &[]);
         transport.assert_no_more_requests();
     }
 
@@ -401,8 +401,8 @@ mod tests {
 
         // then
         assert_eq!(result, Ok(Some(vec![H256::from_low_u64_be(0x456)])));
-        transport.assert_request("eth_newBlockFilter", &[]);
-        transport.assert_request("eth_getFilterChanges", &[r#""0x123""#.into()]);
+        transport.assert_request("platon_newBlockFilter", &[]);
+        transport.assert_request("platon_getFilterChanges", &[r#""0x123""#.into()]);
         transport.assert_no_more_requests();
     }
 
@@ -438,10 +438,10 @@ mod tests {
                 .map(H256::from_low_u64_be)
                 .collect::<Vec<_>>())
         );
-        transport.assert_request("eth_newBlockFilter", &[]);
-        transport.assert_request("eth_getFilterChanges", &[r#""0x123""#.into()]);
-        transport.assert_request("eth_getFilterChanges", &[r#""0x123""#.into()]);
-        transport.assert_request("eth_getFilterChanges", &[r#""0x123""#.into()]);
+        transport.assert_request("platon_newBlockFilter", &[]);
+        transport.assert_request("platon_getFilterChanges", &[r#""0x123""#.into()]);
+        transport.assert_request("platon_getFilterChanges", &[r#""0x123""#.into()]);
+        transport.assert_request("platon_getFilterChanges", &[r#""0x123""#.into()]);
     }
 
     #[test]
@@ -458,7 +458,7 @@ mod tests {
         };
 
         // then
-        transport.assert_request("eth_newPendingTransactionFilter", &[]);
+        transport.assert_request("platon_newPendingTransactionFilter", &[]);
         transport.assert_no_more_requests();
     }
 
@@ -481,8 +481,8 @@ mod tests {
 
         // then
         assert_eq!(result, Ok(Some(vec![H256::from_low_u64_be(0x456)])));
-        transport.assert_request("eth_newPendingTransactionFilter", &[]);
-        transport.assert_request("eth_getFilterChanges", &[r#""0x123""#.into()]);
+        transport.assert_request("platon_newPendingTransactionFilter", &[]);
+        transport.assert_request("platon_getFilterChanges", &[r#""0x123""#.into()]);
         transport.assert_no_more_requests();
     }
 }

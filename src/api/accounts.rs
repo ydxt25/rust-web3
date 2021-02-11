@@ -59,10 +59,10 @@ impl<T: Transport> Accounts<T> {
     {
         let message = message.as_ref();
 
-        let mut eth_message = format!("\x19Ethereum Signed Message:\n{}", message.len()).into_bytes();
-        eth_message.extend_from_slice(message);
+        let mut platon_message = format!("\x19Ethereum Signed Message:\n{}", message.len()).into_bytes();
+        platon_message.extend_from_slice(message);
 
-        keccak256(&eth_message).into()
+        keccak256(&platon_message).into()
     }
 
     /// Sign arbitrary string data.
@@ -401,11 +401,11 @@ mod tests {
         };
 
         transport.assert_request(
-            "eth_getTransactionCount",
+            "platon_getTransactionCount",
             &[json!(from).to_string(), json!("latest").to_string()],
         );
-        transport.assert_request("eth_gasPrice", &[]);
-        transport.assert_request("eth_chainId", &[]);
+        transport.assert_request("platon_gasPrice", &[]);
+        transport.assert_request("platon_chainId", &[]);
         transport.assert_no_more_requests();
 
         let expected = SignedTransaction {

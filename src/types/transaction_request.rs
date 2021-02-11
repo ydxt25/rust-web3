@@ -1,7 +1,7 @@
 use crate::types::{Address, Bytes, U256};
 use serde::{Deserialize, Serialize};
 
-/// Call contract request (eth_call / eth_estimateGas)
+/// Call contract request (platon_call / platon_estimateGas)
 #[derive(Clone, Debug, PartialEq, Serialize)]
 pub struct CallRequest {
     /// Sender address (None for arbitrary address)

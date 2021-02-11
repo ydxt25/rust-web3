@@ -406,7 +406,7 @@ mod tests {
                     let request = String::from_utf8(data[0..read].to_vec()).unwrap();
                     assert_eq!(
                         &request,
-                        r#"{"jsonrpc":"2.0","method":"eth_accounts","params":["1"],"id":1}"#
+                        r#"{"jsonrpc":"2.0","method":"platon_accounts","params":["1"],"id":1}"#
                     );
 
                     // Write response
@@ -422,7 +422,7 @@ mod tests {
         });
 
         // when
-        let res = ipc.execute("eth_accounts", vec![rpc::Value::String("1".into())]);
+        let res = ipc.execute("platon_accounts", vec![rpc::Value::String("1".into())]);
 
         // then
         assert_eq!(eloop.run(res), Ok(rpc::Value::String("x".into())));
@@ -449,7 +449,7 @@ mod tests {
                     // Read request
                     let read = try_nb!(self.server.read(&mut data));
                     let request = String::from_utf8(data[0..read].to_vec()).unwrap();
-                    assert_eq!(&request, r#"{"jsonrpc":"2.0","method":"eth_accounts","params":["1"],"id":1}{"jsonrpc":"2.0","method":"eth_accounts","params":["1"],"id":2}"#);
+                    assert_eq!(&request, r#"{"jsonrpc":"2.0","method":"platon_accounts","params":["1"],"id":1}{"jsonrpc":"2.0","method":"platon_accounts","params":["1"],"id":2}"#);
 
                     // Write response
                     let response = r#"{"jsonrpc":"2.0","id":1,"result":"x"}{"jsonrpc":"2.0","id":2,"result":"x"}"#;
@@ -464,8 +464,8 @@ mod tests {
         });
 
         // when
-        let res1 = ipc.execute("eth_accounts", vec![rpc::Value::String("1".into())]);
-        let res2 = ipc.execute("eth_accounts", vec![rpc::Value::String("1".into())]);
+        let res1 = ipc.execute("platon_accounts", vec![rpc::Value::String("1".into())]);
+        let res2 = ipc.execute("platon_accounts", vec![rpc::Value::String("1".into())]);
 
         // then
         assert_eq!(

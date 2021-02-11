@@ -106,11 +106,11 @@ pub struct Confirmations<T: Transport, V, F> {
 }
 
 impl<T: Transport, V, F> Confirmations<T, V, F> {
-    fn new(eth: Eth<T>, eth_filter: EthFilter<T>, poll_interval: Duration, confirmations: usize, check: V) -> Self {
+    fn new(eth: Eth<T>, platon_filter: EthFilter<T>, poll_interval: Duration, confirmations: usize, check: V) -> Self {
         Confirmations {
             state: ConfirmationsState::Create(CreateWaitForConfirmations {
                 eth: Some(eth),
-                create_filter: eth_filter.create_blocks_filter(),
+                create_filter: platon_filter.create_blocks_filter(),
                 poll_interval,
                 confirmation_check: Some(check),
                 confirmations,
@@ -155,7 +155,7 @@ where
 /// Should be used to wait for confirmations
 pub fn wait_for_confirmations<T, V, F>(
     eth: Eth<T>,
-    eth_filter: EthFilter<T>,
+    platon_filter: EthFilter<T>,
     poll_interval: Duration,
     confirmations: usize,
     check: V,
@@ -165,7 +165,7 @@ where
     V: ConfirmationCheck<Check = F>,
     F: IntoFuture<Item = Option<U64>, Error = Error>,
 {
-    Confirmations::new(eth, eth_filter, poll_interval, confirmations, check)
+    Confirmations::new(eth, platon_filter, poll_interval, confirmations, check)
 }
 
 struct TransactionReceiptBlockNumber<T: Transport> {
@@ -268,10 +268,10 @@ impl<T: Transport> Future for SendTransactionWithConfirmation<T> {
                         let confirmation_check =
                             TransactionReceiptBlockNumberCheck::new(Eth::new(self.transport.clone()), hash);
                         let eth = Eth::new(self.transport.clone());
-                        let eth_filter = EthFilter::new(self.transport.clone());
+                        let platon_filter = EthFilter::new(self.transport.clone());
                         let wait = wait_for_confirmations(
                             eth,
-                            eth_filter,
+                            platon_filter,
                             self.poll_interval,
                             self.confirmations,
                             confirmation_check,
@@ -395,27 +395,27 @@ mod tests {
             future.wait()
         };
 
-        transport.assert_request("eth_sendTransaction", &[r#"{"from":"0x0000000000000000000000000000000000000123","gasPrice":"0x1","to":"0x0000000000000000000000000000000000000123","value":"0x1"}"#.into()]);
-        transport.assert_request("eth_newBlockFilter", &[]);
-        transport.assert_request("eth_getFilterChanges", &[r#""0x123""#.into()]);
-        transport.assert_request("eth_getFilterChanges", &[r#""0x123""#.into()]);
-        transport.assert_request("eth_getFilterChanges", &[r#""0x123""#.into()]);
+        transport.assert_request("platon_sendTransaction", &[r#"{"from":"0x0000000000000000000000000000000000000123","gasPrice":"0x1","to":"0x0000000000000000000000000000000000000123","value":"0x1"}"#.into()]);
+        transport.assert_request("platon_newBlockFilter", &[]);
+        transport.assert_request("platon_getFilterChanges", &[r#""0x123""#.into()]);
+        transport.assert_request("platon_getFilterChanges", &[r#""0x123""#.into()]);
+        transport.assert_request("platon_getFilterChanges", &[r#""0x123""#.into()]);
         transport.assert_request(
-            "eth_getTransactionReceipt",
+            "platon_getTransactionReceipt",
             &[r#""0x0000000000000000000000000000000000000000000000000000000000000111""#.into()],
         );
-        transport.assert_request("eth_getFilterChanges", &[r#""0x123""#.into()]);
+        transport.assert_request("platon_getFilterChanges", &[r#""0x123""#.into()]);
         transport.assert_request(
-            "eth_getTransactionReceipt",
+            "platon_getTransactionReceipt",
             &[r#""0x0000000000000000000000000000000000000000000000000000000000000111""#.into()],
         );
         transport.assert_request(
-            "eth_getTransactionReceipt",
+            "platon_getTransactionReceipt",
             &[r#""0x0000000000000000000000000000000000000000000000000000000000000111""#.into()],
         );
-        transport.assert_request("eth_blockNumber", &[]);
+        transport.assert_request("platon_blockNumber", &[]);
         transport.assert_request(
-            "eth_getTransactionReceipt",
+            "platon_getTransactionReceipt",
             &[r#""0x0000000000000000000000000000000000000000000000000000000000000111""#.into()],
         );
         transport.assert_no_more_requests();

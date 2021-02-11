@@ -29,7 +29,7 @@ impl<T: DuplexTransport> Namespace<T> for EthSubscribe<T> {
     }
 }
 
-/// ID of subscription returned from `eth_subscribe`
+/// ID of subscription returned from `platon_subscribe`
 #[derive(Debug, Clone, Eq, Ord, PartialEq, PartialOrd)]
 pub struct SubscriptionId(String);
 
@@ -70,7 +70,7 @@ impl<T: DuplexTransport, I> SubscriptionStream<T, I> {
     pub fn unsubscribe(self) -> CallFuture<bool, T::Out> {
         let &SubscriptionId(ref id) = &self.id;
         let id = helpers::serialize(&id);
-        CallFuture::new(self.transport.execute("eth_unsubscribe", vec![id]))
+        CallFuture::new(self.transport.execute("platon_unsubscribe", vec![id]))
     }
 }
 
@@ -141,7 +141,7 @@ impl<T: DuplexTransport> EthSubscribe<T> {
     /// Create a new heads subscription
     pub fn subscribe_new_heads(&self) -> SubscriptionResult<T, BlockHeader> {
         let subscription = helpers::serialize(&&"newHeads");
-        let id_future = CallFuture::new(self.transport.execute("eth_subscribe", vec![subscription]));
+        let id_future = CallFuture::new(self.transport.execute("platon_subscribe", vec![subscription]));
         SubscriptionResult::new(self.transport().clone(), id_future)
     }
 
@@ -149,21 +149,21 @@ impl<T: DuplexTransport> EthSubscribe<T> {
     pub fn subscribe_logs(&self, filter: Filter) -> SubscriptionResult<T, Log> {
         let subscription = helpers::serialize(&&"logs");
         let filter = helpers::serialize(&filter);
-        let id_future = CallFuture::new(self.transport.execute("eth_subscribe", vec![subscription, filter]));
+        let id_future = CallFuture::new(self.transport.execute("platon_subscribe", vec![subscription, filter]));
         SubscriptionResult::new(self.transport().clone(), id_future)
     }
 
     /// Create a pending transactions subscription
     pub fn subscribe_new_pending_transactions(&self) -> SubscriptionResult<T, H256> {
         let subscription = helpers::serialize(&&"newPendingTransactions");
-        let id_future = CallFuture::new(self.transport.execute("eth_subscribe", vec![subscription]));
+        let id_future = CallFuture::new(self.transport.execute("platon_subscribe", vec![subscription]));
         SubscriptionResult::new(self.transport().clone(), id_future)
     }
 
     /// Create a sync status subscription
     pub fn subscribe_syncing(&self) -> SubscriptionResult<T, SyncState> {
         let subscription = helpers::serialize(&&"syncing");
-        let id_future = CallFuture::new(self.transport.execute("eth_subscribe", vec![subscription]));
+        let id_future = CallFuture::new(self.transport.execute("platon_subscribe", vec![subscription]));
         SubscriptionResult::new(self.transport().clone(), id_future)
     }
 }

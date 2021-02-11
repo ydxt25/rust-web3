@@ -289,7 +289,7 @@ mod tests {
 
         // then
         transport.assert_request(
-            "eth_call",
+            "platon_call",
             &[
                 "{\"data\":\"0x06fdde03\",\"to\":\"0x0000000000000000000000000000000000000001\"}".into(),
                 "\"0x1\"".into(),
@@ -317,7 +317,7 @@ mod tests {
 
         // then
         transport.assert_request(
-            "eth_call",
+            "platon_call",
             &[
                 "{\"data\":\"0x06fdde03\",\"to\":\"0x0000000000000000000000000000000000000001\"}".into(),
                 "{\"blockHash\":\"0x0000000000000000000000000000000000000000000000000000000000000000\"}".into(),
@@ -352,7 +352,7 @@ mod tests {
         };
 
         // then
-        transport.assert_request("eth_call", &["{\"data\":\"0x06fdde03\",\"from\":\"0x0000000000000000000000000000000000000005\",\"gasPrice\":\"0x989680\",\"to\":\"0x0000000000000000000000000000000000000001\"}".into(), "\"latest\"".into()]);
+        transport.assert_request("platon_call", &["{\"data\":\"0x06fdde03\",\"from\":\"0x0000000000000000000000000000000000000005\",\"gasPrice\":\"0x989680\",\"to\":\"0x0000000000000000000000000000000000000001\"}".into(), "\"latest\"".into()]);
         transport.assert_no_more_requests();
         assert_eq!(result, "Hello World!".to_owned());
     }
@@ -374,7 +374,7 @@ mod tests {
         };
 
         // then
-        transport.assert_request("eth_sendTransaction", &["{\"data\":\"0x06fdde03\",\"from\":\"0x0000000000000000000000000000000000000005\",\"to\":\"0x0000000000000000000000000000000000000001\"}".into()]);
+        transport.assert_request("platon_sendTransaction", &["{\"data\":\"0x06fdde03\",\"from\":\"0x0000000000000000000000000000000000000005\",\"to\":\"0x0000000000000000000000000000000000000001\"}".into()]);
         transport.assert_no_more_requests();
         assert_eq!(result, H256::from_low_u64_be(5));
     }
@@ -396,7 +396,7 @@ mod tests {
         };
 
         // then
-        transport.assert_request("eth_estimateGas", &["{\"data\":\"0x06fdde03\",\"from\":\"0x0000000000000000000000000000000000000005\",\"to\":\"0x0000000000000000000000000000000000000001\"}".into()]);
+        transport.assert_request("platon_estimateGas", &["{\"data\":\"0x06fdde03\",\"from\":\"0x0000000000000000000000000000000000000005\",\"to\":\"0x0000000000000000000000000000000000000001\"}".into()]);
         transport.assert_no_more_requests();
         assert_eq!(result, 5.into());
     }
@@ -420,7 +420,7 @@ mod tests {
         };
 
         // then
-        transport.assert_request("eth_call", &["{\"data\":\"0x70a082310000000000000000000000000000000000000000000000000000000000000005\",\"to\":\"0x0000000000000000000000000000000000000001\"}".into(), "\"latest\"".into()]);
+        transport.assert_request("platon_call", &["{\"data\":\"0x70a082310000000000000000000000000000000000000000000000000000000000000005\",\"to\":\"0x0000000000000000000000000000000000000001\"}".into(), "\"latest\"".into()]);
         transport.assert_no_more_requests();
         assert_eq!(result, 0x20.into());
     }

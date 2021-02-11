@@ -30,12 +30,12 @@ impl<T: Transport> Namespace<T> for Eth<T> {
 impl<T: Transport> Eth<T> {
     /// Get list of available accounts.
     pub fn accounts(&self) -> CallFuture<Vec<Address>, T::Out> {
-        CallFuture::new(self.transport.execute("eth_accounts", vec![]))
+        CallFuture::new(self.transport.execute("platon_accounts", vec![]))
     }
 
     /// Get current block number
     pub fn block_number(&self) -> CallFuture<U64, T::Out> {
-        CallFuture::new(self.transport.execute("eth_blockNumber", vec![]))
+        CallFuture::new(self.transport.execute("platon_blockNumber", vec![]))
     }
 
     /// Call a constant method of contract without changing the state of the blockchain.
@@ -43,30 +43,30 @@ impl<T: Transport> Eth<T> {
         let req = helpers::serialize(&req);
         let block = helpers::serialize(&block.unwrap_or(BlockNumber::Latest.into()));
 
-        CallFuture::new(self.transport.execute("eth_call", vec![req, block]))
+        CallFuture::new(self.transport.execute("platon_call", vec![req, block]))
     }
 
     /// Get coinbase address
     pub fn coinbase(&self) -> CallFuture<Address, T::Out> {
-        CallFuture::new(self.transport.execute("eth_coinbase", vec![]))
+        CallFuture::new(self.transport.execute("platon_coinbase", vec![]))
     }
 
     /// Compile LLL
     pub fn compile_lll(&self, code: String) -> CallFuture<Bytes, T::Out> {
         let code = helpers::serialize(&code);
-        CallFuture::new(self.transport.execute("eth_compileLLL", vec![code]))
+        CallFuture::new(self.transport.execute("platon_compileLLL", vec![code]))
     }
 
     /// Compile Solidity
     pub fn compile_solidity(&self, code: String) -> CallFuture<Bytes, T::Out> {
         let code = helpers::serialize(&code);
-        CallFuture::new(self.transport.execute("eth_compileSolidity", vec![code]))
+        CallFuture::new(self.transport.execute("platon_compileSolidity", vec![code]))
     }
 
     /// Compile Serpent
     pub fn compile_serpent(&self, code: String) -> CallFuture<Bytes, T::Out> {
         let code = helpers::serialize(&code);
-        CallFuture::new(self.transport.execute("eth_compileSerpent", vec![code]))
+        CallFuture::new(self.transport.execute("platon_compileSerpent", vec![code]))
     }
 
     /// Call a contract without changing the state of the blockchain to estimate gas usage.
@@ -78,12 +78,12 @@ impl<T: Transport> Eth<T> {
             None => vec![req],
         };
 
-        CallFuture::new(self.transport.execute("eth_estimateGas", args))
+        CallFuture::new(self.transport.execute("platon_estimateGas", args))
     }
 
     /// Get current recommended gas price
     pub fn gas_price(&self) -> CallFuture<U256, T::Out> {
-        CallFuture::new(self.transport.execute("eth_gasPrice", vec![]))
+        CallFuture::new(self.transport.execute("platon_gasPrice", vec![]))
     }
 
     /// Get balance of given address
@@ -91,13 +91,13 @@ impl<T: Transport> Eth<T> {
         let address = helpers::serialize(&address);
         let block = helpers::serialize(&block.unwrap_or(BlockNumber::Latest));
 
-        CallFuture::new(self.transport.execute("eth_getBalance", vec![address, block]))
+        CallFuture::new(self.transport.execute("platon_getBalance", vec![address, block]))
     }
 
     /// Get all logs matching a given filter object
     pub fn logs(&self, filter: Filter) -> CallFuture<Vec<Log>, T::Out> {
         let filter = helpers::serialize(&filter);
-        CallFuture::new(self.transport.execute("eth_getLogs", vec![filter]))
+        CallFuture::new(self.transport.execute("platon_getLogs", vec![filter]))
     }
 
     /// Get block details with transaction hashes.
@@ -107,11 +107,11 @@ impl<T: Transport> Eth<T> {
         let result = match block {
             BlockId::Hash(hash) => {
                 let hash = helpers::serialize(&hash);
-                self.transport.execute("eth_getBlockByHash", vec![hash, include_txs])
+                self.transport.execute("platon_getBlockByHash", vec![hash, include_txs])
             }
             BlockId::Number(num) => {
                 let num = helpers::serialize(&num);
-                self.transport.execute("eth_getBlockByNumber", vec![num, include_txs])
+                self.transport.execute("platon_getBlockByNumber", vec![num, include_txs])
             }
         };
 
@@ -125,11 +125,11 @@ impl<T: Transport> Eth<T> {
         let result = match block {
             BlockId::Hash(hash) => {
                 let hash = helpers::serialize(&hash);
-                self.transport.execute("eth_getBlockByHash", vec![hash, include_txs])
+                self.transport.execute("platon_getBlockByHash", vec![hash, include_txs])
             }
             BlockId::Number(num) => {
                 let num = helpers::serialize(&num);
-                self.transport.execute("eth_getBlockByNumber", vec![num, include_txs])
+                self.transport.execute("platon_getBlockByNumber", vec![num, include_txs])
             }
         };
 
@@ -141,12 +141,12 @@ impl<T: Transport> Eth<T> {
         let result = match block {
             BlockId::Hash(hash) => {
                 let hash = helpers::serialize(&hash);
-                self.transport.execute("eth_getBlockTransactionCountByHash", vec![hash])
+                self.transport.execute("platon_getBlockTransactionCountByHash", vec![hash])
             }
             BlockId::Number(num) => {
                 let num = helpers::serialize(&num);
                 self.transport
-                    .execute("eth_getBlockTransactionCountByNumber", vec![num])
+                    .execute("platon_getBlockTransactionCountByNumber", vec![num])
             }
         };
 
@@ -158,17 +158,17 @@ impl<T: Transport> Eth<T> {
         let address = helpers::serialize(&address);
         let block = helpers::serialize(&block.unwrap_or(BlockNumber::Latest));
 
-        CallFuture::new(self.transport.execute("eth_getCode", vec![address, block]))
+        CallFuture::new(self.transport.execute("platon_getCode", vec![address, block]))
     }
 
     /// Get supported compilers
     pub fn compilers(&self) -> CallFuture<Vec<String>, T::Out> {
-        CallFuture::new(self.transport.execute("eth_getCompilers", vec![]))
+        CallFuture::new(self.transport.execute("platon_getCompilers", vec![]))
     }
 
     /// Get chain id
     pub fn chain_id(&self) -> CallFuture<U256, T::Out> {
-        CallFuture::new(self.transport.execute("eth_chainId", vec![]))
+        CallFuture::new(self.transport.execute("platon_chainId", vec![]))
     }
 
     /// Get storage entry
@@ -177,7 +177,7 @@ impl<T: Transport> Eth<T> {
         let idx = helpers::serialize(&idx);
         let block = helpers::serialize(&block.unwrap_or(BlockNumber::Latest));
 
-        CallFuture::new(self.transport.execute("eth_getStorageAt", vec![address, idx, block]))
+        CallFuture::new(self.transport.execute("platon_getStorageAt", vec![address, idx, block]))
     }
 
     /// Get nonce
@@ -185,7 +185,7 @@ impl<T: Transport> Eth<T> {
         let address = helpers::serialize(&address);
         let block = helpers::serialize(&block.unwrap_or(BlockNumber::Latest));
 
-        CallFuture::new(self.transport.execute("eth_getTransactionCount", vec![address, block]))
+        CallFuture::new(self.transport.execute("platon_getTransactionCount", vec![address, block]))
     }
 
     /// Get transaction
@@ -193,19 +193,19 @@ impl<T: Transport> Eth<T> {
         let result = match id {
             TransactionId::Hash(hash) => {
                 let hash = helpers::serialize(&hash);
-                self.transport.execute("eth_getTransactionByHash", vec![hash])
+                self.transport.execute("platon_getTransactionByHash", vec![hash])
             }
             TransactionId::Block(BlockId::Hash(hash), index) => {
                 let hash = helpers::serialize(&hash);
                 let idx = helpers::serialize(&index);
                 self.transport
-                    .execute("eth_getTransactionByBlockHashAndIndex", vec![hash, idx])
+                    .execute("platon_getTransactionByBlockHashAndIndex", vec![hash, idx])
             }
             TransactionId::Block(BlockId::Number(number), index) => {
                 let number = helpers::serialize(&number);
                 let idx = helpers::serialize(&index);
                 self.transport
-                    .execute("eth_getTransactionByBlockNumberAndIndex", vec![number, idx])
+                    .execute("platon_getTransactionByBlockNumberAndIndex", vec![number, idx])
             }
         };
 
@@ -216,7 +216,7 @@ impl<T: Transport> Eth<T> {
     pub fn transaction_receipt(&self, hash: H256) -> CallFuture<Option<TransactionReceipt>, T::Out> {
         let hash = helpers::serialize(&hash);
 
-        CallFuture::new(self.transport.execute("eth_getTransactionReceipt", vec![hash]))
+        CallFuture::new(self.transport.execute("platon_getTransactionReceipt", vec![hash]))
     }
 
     /// Get uncle by block ID and uncle index -- transactions only has hashes.
@@ -227,12 +227,12 @@ impl<T: Transport> Eth<T> {
             BlockId::Hash(hash) => {
                 let hash = helpers::serialize(&hash);
                 self.transport
-                    .execute("eth_getUncleByBlockHashAndIndex", vec![hash, index])
+                    .execute("platon_getUncleByBlockHashAndIndex", vec![hash, index])
             }
             BlockId::Number(num) => {
                 let num = helpers::serialize(&num);
                 self.transport
-                    .execute("eth_getUncleByBlockNumberAndIndex", vec![num, index])
+                    .execute("platon_getUncleByBlockNumberAndIndex", vec![num, index])
             }
         };
 
@@ -244,11 +244,11 @@ impl<T: Transport> Eth<T> {
         let result = match block {
             BlockId::Hash(hash) => {
                 let hash = helpers::serialize(&hash);
-                self.transport.execute("eth_getUncleCountByBlockHash", vec![hash])
+                self.transport.execute("platon_getUncleCountByBlockHash", vec![hash])
             }
             BlockId::Number(num) => {
                 let num = helpers::serialize(&num);
-                self.transport.execute("eth_getUncleCountByBlockNumber", vec![num])
+                self.transport.execute("platon_getUncleCountByBlockNumber", vec![num])
             }
         };
 
@@ -257,58 +257,58 @@ impl<T: Transport> Eth<T> {
 
     /// Get work package
     pub fn work(&self) -> CallFuture<Work, T::Out> {
-        CallFuture::new(self.transport.execute("eth_getWork", vec![]))
+        CallFuture::new(self.transport.execute("platon_getWork", vec![]))
     }
 
     /// Get hash rate
     pub fn hashrate(&self) -> CallFuture<U256, T::Out> {
-        CallFuture::new(self.transport.execute("eth_hashrate", vec![]))
+        CallFuture::new(self.transport.execute("platon_hashrate", vec![]))
     }
 
     /// Get mining status
     pub fn mining(&self) -> CallFuture<bool, T::Out> {
-        CallFuture::new(self.transport.execute("eth_mining", vec![]))
+        CallFuture::new(self.transport.execute("platon_mining", vec![]))
     }
 
     /// Start new block filter
     pub fn new_block_filter(&self) -> CallFuture<U256, T::Out> {
-        CallFuture::new(self.transport.execute("eth_newBlockFilter", vec![]))
+        CallFuture::new(self.transport.execute("platon_newBlockFilter", vec![]))
     }
 
     /// Start new pending transaction filter
     pub fn new_pending_transaction_filter(&self) -> CallFuture<U256, T::Out> {
-        CallFuture::new(self.transport.execute("eth_newPendingTransactionFilter", vec![]))
+        CallFuture::new(self.transport.execute("platon_newPendingTransactionFilter", vec![]))
     }
 
     /// Start new pending transaction filter
     pub fn protocol_version(&self) -> CallFuture<String, T::Out> {
-        CallFuture::new(self.transport.execute("eth_protocolVersion", vec![]))
+        CallFuture::new(self.transport.execute("platon_protocolVersion", vec![]))
     }
 
     /// Sends a rlp-encoded signed transaction
     pub fn send_raw_transaction(&self, rlp: Bytes) -> CallFuture<H256, T::Out> {
         let rlp = helpers::serialize(&rlp);
-        CallFuture::new(self.transport.execute("eth_sendRawTransaction", vec![rlp]))
+        CallFuture::new(self.transport.execute("platon_sendRawTransaction", vec![rlp]))
     }
 
     /// Sends a transaction transaction
     pub fn send_transaction(&self, tx: TransactionRequest) -> CallFuture<H256, T::Out> {
         let tx = helpers::serialize(&tx);
-        CallFuture::new(self.transport.execute("eth_sendTransaction", vec![tx]))
+        CallFuture::new(self.transport.execute("platon_sendTransaction", vec![tx]))
     }
 
     /// Signs a hash of given data
     pub fn sign(&self, address: Address, data: Bytes) -> CallFuture<H520, T::Out> {
         let address = helpers::serialize(&address);
         let data = helpers::serialize(&data);
-        CallFuture::new(self.transport.execute("eth_sign", vec![address, data]))
+        CallFuture::new(self.transport.execute("platon_sign", vec![address, data]))
     }
 
     /// Submit hashrate of external miner
     pub fn submit_hashrate(&self, rate: U256, id: H256) -> CallFuture<bool, T::Out> {
         let rate = helpers::serialize(&rate);
         let id = helpers::serialize(&id);
-        CallFuture::new(self.transport.execute("eth_submitHashrate", vec![rate, id]))
+        CallFuture::new(self.transport.execute("platon_submitHashrate", vec![rate, id]))
     }
 
     /// Submit work of external miner
@@ -318,13 +318,13 @@ impl<T: Transport> Eth<T> {
         let mix_hash = helpers::serialize(&mix_hash);
         CallFuture::new(
             self.transport
-                .execute("eth_submitWork", vec![nonce, pow_hash, mix_hash]),
+                .execute("platon_submitWork", vec![nonce, pow_hash, mix_hash]),
         )
     }
 
     /// Get syncing status
     pub fn syncing(&self) -> CallFuture<SyncState, T::Out> {
-        CallFuture::new(self.transport.execute("eth_syncing", vec![]))
+        CallFuture::new(self.transport.execute("platon_syncing", vec![]))
     }
 }
 
@@ -371,7 +371,7 @@ mod tests {
     "uncles": []
   }"#;
 
-    // response from RPC request {"jsonrpc":"2.0","method":"eth_getBlockByNumber","params":["pending", false],"id":1}.
+    // response from RPC request {"jsonrpc":"2.0","method":"platon_getBlockByNumber","params":["pending", false],"id":1}.
     const EXAMPLE_PENDING_BLOCK: &'static str = r#"{
         "author": "0x0000000000000000000000000000000000000000",
         "difficulty": "0x7eac2e8c440b2",
@@ -451,12 +451,12 @@ mod tests {
   }"#;
 
     rpc_test! (
-      Eth:accounts => "eth_accounts";
+      Eth:accounts => "platon_accounts";
       Value::Array(vec![Value::String("0x0000000000000000000000000000000000000123".into())]) => vec![Address::from_low_u64_be(0x123)]
     );
 
     rpc_test! (
-      Eth:block_number => "eth_blockNumber";
+      Eth:block_number => "platon_blockNumber";
       Value::String("0x123".into()) => 0x123
     );
 
@@ -467,27 +467,27 @@ mod tests {
         value: Some(0x1.into()), data: None,
       }, None
       =>
-      "eth_call", vec![r#"{"to":"0x0000000000000000000000000000000000000123","value":"0x1"}"#, r#""latest""#];
+      "platon_call", vec![r#"{"to":"0x0000000000000000000000000000000000000123","value":"0x1"}"#, r#""latest""#];
       Value::String("0x010203".into()) => Bytes(vec![1, 2, 3])
     );
 
     rpc_test! (
-      Eth:coinbase => "eth_coinbase";
+      Eth:coinbase => "platon_coinbase";
       Value::String("0x0000000000000000000000000000000000000123".into()) => Address::from_low_u64_be(0x123)
     );
 
     rpc_test! (
-      Eth:compile_lll, "code" => "eth_compileLLL", vec![r#""code""#];
+      Eth:compile_lll, "code" => "platon_compileLLL", vec![r#""code""#];
       Value::String("0x0123".into()) => Bytes(vec![0x1, 0x23])
     );
 
     rpc_test! (
-      Eth:compile_solidity, "code" => "eth_compileSolidity", vec![r#""code""#];
+      Eth:compile_solidity, "code" => "platon_compileSolidity", vec![r#""code""#];
       Value::String("0x0123".into()) => Bytes(vec![0x1, 0x23])
     );
 
     rpc_test! (
-      Eth:compile_serpent, "code" => "eth_compileSerpent", vec![r#""code""#];
+      Eth:compile_serpent, "code" => "platon_compileSerpent", vec![r#""code""#];
       Value::String("0x0123".into()) => Bytes(vec![0x1, 0x23])
     );
 
@@ -498,7 +498,7 @@ mod tests {
         value: Some(0x1.into()), data: None,
       }, None
       =>
-      "eth_estimateGas", vec![r#"{"to":"0x0000000000000000000000000000000000000123","value":"0x1"}"#];
+      "platon_estimateGas", vec![r#"{"to":"0x0000000000000000000000000000000000000123","value":"0x1"}"#];
       Value::String("0x123".into()) => 0x123
     );
 
@@ -509,24 +509,24 @@ mod tests {
         value: Some(0x1.into()), data: None,
       }, Some(0x123.into())
       =>
-      "eth_estimateGas", vec![r#"{"to":"0x0000000000000000000000000000000000000123","value":"0x1"}"#, r#""0x123""#];
+      "platon_estimateGas", vec![r#"{"to":"0x0000000000000000000000000000000000000123","value":"0x1"}"#, r#""0x123""#];
       Value::String("0x123".into()) => 0x123
     );
 
     rpc_test! (
-      Eth:gas_price => "eth_gasPrice";
+      Eth:gas_price => "platon_gasPrice";
       Value::String("0x123".into()) => 0x123
     );
 
     rpc_test! (
       Eth:balance, Address::from_low_u64_be(0x123), None
       =>
-      "eth_getBalance", vec![r#""0x0000000000000000000000000000000000000123""#, r#""latest""#];
+      "platon_getBalance", vec![r#""0x0000000000000000000000000000000000000123""#, r#""latest""#];
       Value::String("0x123".into()) => 0x123
     );
 
     rpc_test! (
-      Eth:logs, FilterBuilder::default().build() => "eth_getLogs", vec!["{}"];
+      Eth:logs, FilterBuilder::default().build() => "platon_getLogs", vec!["{}"];
       Value::Array(vec![::serde_json::from_str(EXAMPLE_LOG).unwrap()])
       => vec![::serde_json::from_str::<Log>(EXAMPLE_LOG).unwrap()]
     );
@@ -534,7 +534,7 @@ mod tests {
     rpc_test! (
       Eth:block:block_by_hash, BlockId::Hash(H256::from_low_u64_be(0x123))
       =>
-      "eth_getBlockByHash", vec![r#""0x0000000000000000000000000000000000000000000000000000000000000123""#, r#"false"#];
+      "platon_getBlockByHash", vec![r#""0x0000000000000000000000000000000000000000000000000000000000000123""#, r#"false"#];
       ::serde_json::from_str(EXAMPLE_BLOCK).unwrap()
       => Some(::serde_json::from_str::<Block<H256>>(EXAMPLE_BLOCK).unwrap())
     );
@@ -542,7 +542,7 @@ mod tests {
     rpc_test! (
       Eth:block, BlockNumber::Pending
       =>
-      "eth_getBlockByNumber", vec![r#""pending""#, r#"false"#];
+      "platon_getBlockByNumber", vec![r#""pending""#, r#"false"#];
       ::serde_json::from_str(EXAMPLE_PENDING_BLOCK).unwrap()
       => Some(::serde_json::from_str::<Block<H256>>(EXAMPLE_PENDING_BLOCK).unwrap())
     );
@@ -550,7 +550,7 @@ mod tests {
     rpc_test! (
       Eth:block_with_txs, BlockNumber::Pending
       =>
-      "eth_getBlockByNumber", vec![r#""pending""#, r#"true"#];
+      "platon_getBlockByNumber", vec![r#""pending""#, r#"true"#];
       ::serde_json::from_str(EXAMPLE_BLOCK).unwrap()
       => Some(::serde_json::from_str::<Block<Transaction>>(EXAMPLE_BLOCK).unwrap())
     );
@@ -558,38 +558,38 @@ mod tests {
     rpc_test! (
       Eth:block_transaction_count:block_tx_count_by_hash, BlockId::Hash(H256::from_low_u64_be(0x123))
       =>
-      "eth_getBlockTransactionCountByHash", vec![r#""0x0000000000000000000000000000000000000000000000000000000000000123""#];
+      "platon_getBlockTransactionCountByHash", vec![r#""0x0000000000000000000000000000000000000000000000000000000000000123""#];
       Value::String("0x123".into()) => Some(0x123.into())
     );
 
     rpc_test! (
       Eth:block_transaction_count, BlockNumber::Pending
       =>
-      "eth_getBlockTransactionCountByNumber", vec![r#""pending""#];
+      "platon_getBlockTransactionCountByNumber", vec![r#""pending""#];
       Value::Null => None
     );
 
     rpc_test! (
       Eth:code, H256::from_low_u64_be(0x123), Some(BlockNumber::Pending)
       =>
-      "eth_getCode", vec![r#""0x0000000000000000000000000000000000000123""#, r#""pending""#];
+      "platon_getCode", vec![r#""0x0000000000000000000000000000000000000123""#, r#""pending""#];
       Value::String("0x0123".into()) => Bytes(vec![0x1, 0x23])
     );
 
     rpc_test! (
-      Eth:compilers => "eth_getCompilers";
+      Eth:compilers => "platon_getCompilers";
       Value::Array(vec![]) => vec![]
     );
 
     rpc_test! (
-      Eth:chain_id => "eth_chainId";
+      Eth:chain_id => "platon_chainId";
       Value::String("0x123".into()) => 0x123
     );
 
     rpc_test! (
       Eth:storage, Address::from_low_u64_be(0x123), 0x456, None
       =>
-      "eth_getStorageAt", vec![
+      "platon_getStorageAt", vec![
         r#""0x0000000000000000000000000000000000000123""#,
         r#""0x456""#,
         r#""latest""#
@@ -600,14 +600,14 @@ mod tests {
     rpc_test! (
       Eth:transaction_count, Address::from_low_u64_be(0x123), None
       =>
-      "eth_getTransactionCount", vec![r#""0x0000000000000000000000000000000000000123""#, r#""latest""#];
+      "platon_getTransactionCount", vec![r#""0x0000000000000000000000000000000000000123""#, r#""latest""#];
       Value::String("0x123".into()) => 0x123
     );
 
     rpc_test! (
       Eth:transaction:tx_by_hash, TransactionId::Hash(H256::from_low_u64_be(0x123))
       =>
-      "eth_getTransactionByHash", vec![r#""0x0000000000000000000000000000000000000000000000000000000000000123""#];
+      "platon_getTransactionByHash", vec![r#""0x0000000000000000000000000000000000000000000000000000000000000123""#];
       ::serde_json::from_str(EXAMPLE_TX).unwrap()
       => Some(::serde_json::from_str::<Transaction>(EXAMPLE_TX).unwrap())
     );
@@ -618,7 +618,7 @@ mod tests {
         5.into()
       )
       =>
-      "eth_getTransactionByBlockHashAndIndex", vec![r#""0x0000000000000000000000000000000000000000000000000000000000000123""#, r#""0x5""#];
+      "platon_getTransactionByBlockHashAndIndex", vec![r#""0x0000000000000000000000000000000000000000000000000000000000000123""#, r#""0x5""#];
       Value::Null => None
     );
 
@@ -628,7 +628,7 @@ mod tests {
         5.into()
       )
       =>
-      "eth_getTransactionByBlockNumberAndIndex", vec![r#""pending""#, r#""0x5""#];
+      "platon_getTransactionByBlockNumberAndIndex", vec![r#""pending""#, r#""0x5""#];
       ::serde_json::from_str(EXAMPLE_TX).unwrap()
       => Some(::serde_json::from_str::<Transaction>(EXAMPLE_TX).unwrap())
     );
@@ -636,7 +636,7 @@ mod tests {
     rpc_test! (
       Eth:transaction_receipt, H256::from_low_u64_be(0x123)
       =>
-      "eth_getTransactionReceipt", vec![r#""0x0000000000000000000000000000000000000000000000000000000000000123""#];
+      "platon_getTransactionReceipt", vec![r#""0x0000000000000000000000000000000000000000000000000000000000000123""#];
       ::serde_json::from_str(EXAMPLE_RECEIPT).unwrap()
       => Some(::serde_json::from_str::<TransactionReceipt>(EXAMPLE_RECEIPT).unwrap())
     );
@@ -644,7 +644,7 @@ mod tests {
     rpc_test! (
       Eth:uncle:uncle_by_hash, BlockId::Hash(H256::from_low_u64_be(0x123)), 5
       =>
-      "eth_getUncleByBlockHashAndIndex", vec![r#""0x0000000000000000000000000000000000000000000000000000000000000123""#, r#""0x5""#];
+      "platon_getUncleByBlockHashAndIndex", vec![r#""0x0000000000000000000000000000000000000000000000000000000000000123""#, r#""0x5""#];
       ::serde_json::from_str(EXAMPLE_BLOCK).unwrap()
       => Some(::serde_json::from_str::<Block<H256>>(EXAMPLE_BLOCK).unwrap())
     );
@@ -652,26 +652,26 @@ mod tests {
     rpc_test! (
       Eth:uncle:uncle_by_no, BlockNumber::Earliest, 5
       =>
-      "eth_getUncleByBlockNumberAndIndex", vec![r#""earliest""#, r#""0x5""#];
+      "platon_getUncleByBlockNumberAndIndex", vec![r#""earliest""#, r#""0x5""#];
       Value::Null => None
     );
 
     rpc_test! (
       Eth:uncle_count:uncle_count_by_hash, BlockId::Hash(H256::from_low_u64_be(0x123))
       =>
-      "eth_getUncleCountByBlockHash", vec![r#""0x0000000000000000000000000000000000000000000000000000000000000123""#];
+      "platon_getUncleCountByBlockHash", vec![r#""0x0000000000000000000000000000000000000000000000000000000000000123""#];
       Value::String("0x123".into())=> Some(0x123.into())
     );
 
     rpc_test! (
       Eth:uncle_count:uncle_count_by_no, BlockNumber::Earliest
       =>
-      "eth_getUncleCountByBlockNumber", vec![r#""earliest""#];
+      "platon_getUncleCountByBlockNumber", vec![r#""earliest""#];
       Value::Null => None
     );
 
     rpc_test! (
-      Eth:work:work_3 => "eth_getWork";
+      Eth:work:work_3 => "platon_getWork";
       Value::Array(vec![
         Value::String("0x0000000000000000000000000000000000000000000000000000000000000123".into()),
         Value::String("0x0000000000000000000000000000000000000000000000000000000000000456".into()),
@@ -685,7 +685,7 @@ mod tests {
     );
 
     rpc_test! (
-      Eth:work:work_4 => "eth_getWork";
+      Eth:work:work_4 => "platon_getWork";
       Value::Array(vec![
         Value::String("0x0000000000000000000000000000000000000000000000000000000000000123".into()),
         Value::String("0x0000000000000000000000000000000000000000000000000000000000000456".into()),
@@ -700,33 +700,33 @@ mod tests {
     );
 
     rpc_test! (
-      Eth:hashrate => "eth_hashrate";
+      Eth:hashrate => "platon_hashrate";
       Value::String("0x123".into()) => 0x123
     );
 
     rpc_test! (
-      Eth:mining => "eth_mining";
+      Eth:mining => "platon_mining";
       Value::Bool(true) => true
     );
 
     rpc_test! (
-      Eth:new_block_filter => "eth_newBlockFilter";
+      Eth:new_block_filter => "platon_newBlockFilter";
       Value::String("0x123".into()) => 0x123
     );
     rpc_test! (
-      Eth:new_pending_transaction_filter => "eth_newPendingTransactionFilter";
+      Eth:new_pending_transaction_filter => "platon_newPendingTransactionFilter";
       Value::String("0x123".into()) => 0x123
     );
 
     rpc_test! (
-      Eth:protocol_version => "eth_protocolVersion";
+      Eth:protocol_version => "platon_protocolVersion";
       Value::String("0x123".into()) => "0x123"
     );
 
     rpc_test! (
       Eth:send_raw_transaction, Bytes(vec![1, 2, 3, 4])
       =>
-      "eth_sendRawTransaction", vec![r#""0x01020304""#];
+      "platon_sendRawTransaction", vec![r#""0x01020304""#];
       Value::String("0x0000000000000000000000000000000000000000000000000000000000000123".into()) => H256::from_low_u64_be(0x123)
     );
 
@@ -738,38 +738,38 @@ mod tests {
         nonce: None, condition: None,
       }
       =>
-      "eth_sendTransaction", vec![r#"{"from":"0x0000000000000000000000000000000000000123","gasPrice":"0x1","to":"0x0000000000000000000000000000000000000123","value":"0x1"}"#];
+      "platon_sendTransaction", vec![r#"{"from":"0x0000000000000000000000000000000000000123","gasPrice":"0x1","to":"0x0000000000000000000000000000000000000123","value":"0x1"}"#];
       Value::String("0x0000000000000000000000000000000000000000000000000000000000000123".into()) => H256::from_low_u64_be(0x123)
     );
 
     rpc_test! (
       Eth:sign, H256::from_low_u64_be(0x123), Bytes(vec![1, 2, 3, 4])
       =>
-      "eth_sign", vec![r#""0x0000000000000000000000000000000000000123""#, r#""0x01020304""#];
+      "platon_sign", vec![r#""0x0000000000000000000000000000000000000123""#, r#""0x01020304""#];
       Value::String("0x0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000123".into()) => H520::from_low_u64_be(0x123)
     );
 
     rpc_test! (
       Eth:submit_hashrate, 0x123, H256::from_low_u64_be(0x456)
       =>
-      "eth_submitHashrate", vec![r#""0x123""#, r#""0x0000000000000000000000000000000000000000000000000000000000000456""#];
+      "platon_submitHashrate", vec![r#""0x123""#, r#""0x0000000000000000000000000000000000000000000000000000000000000456""#];
       Value::Bool(true) => true
     );
 
     rpc_test! (
       Eth:submit_work, H64::from_low_u64_be(0x123), H256::from_low_u64_be(0x456), H256::from_low_u64_be(0x789)
       =>
-      "eth_submitWork", vec![r#""0x0000000000000123""#, r#""0x0000000000000000000000000000000000000000000000000000000000000456""#, r#""0x0000000000000000000000000000000000000000000000000000000000000789""#];
+      "platon_submitWork", vec![r#""0x0000000000000123""#, r#""0x0000000000000000000000000000000000000000000000000000000000000456""#, r#""0x0000000000000000000000000000000000000000000000000000000000000789""#];
       Value::Bool(true) => true
     );
 
     rpc_test! (
-      Eth:syncing:syncing => "eth_syncing";
+      Eth:syncing:syncing => "platon_syncing";
       json!({"startingBlock": "0x384","currentBlock": "0x386","highestBlock": "0x454"}) => SyncState::Syncing(SyncInfo { starting_block: 0x384.into(), current_block: 0x386.into(), highest_block: 0x454.into()})
     );
 
     rpc_test! {
-      Eth:syncing:not_syncing => "eth_syncing";
+      Eth:syncing:not_syncing => "platon_syncing";
       Value::Bool(false) => SyncState::NotSyncing
     }
 }

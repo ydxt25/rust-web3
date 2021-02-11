@@ -241,19 +241,19 @@ mod tests {
         };
 
         // then
-        transport.assert_request("eth_sendTransaction", &[
+        transport.assert_request("platon_sendTransaction", &[
       "{\"data\":\"0x0102030400000000000000000000000000000000000000000000000000000000000f42400000000000000000000000000000000000000000000000000000000000000080000000000000000000000000000000000000000000000000000000000000000300000000000000000000000000000000000000000000000000000000000000c000000000000000000000000000000000000000000000000000000000000000084d7920546f6b656e00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000024d54000000000000000000000000000000000000000000000000000000000000\",\"from\":\"0x0000000000000000000000000000000000000005\",\"value\":\"0x5\"}".into(),
     ]);
-        transport.assert_request("eth_newBlockFilter", &[]);
-        transport.assert_request("eth_getFilterChanges", &["\"0x0\"".into()]);
-        transport.assert_request("eth_getFilterChanges", &["\"0x0\"".into()]);
+        transport.assert_request("platon_newBlockFilter", &[]);
+        transport.assert_request("platon_getFilterChanges", &["\"0x0\"".into()]);
+        transport.assert_request("platon_getFilterChanges", &["\"0x0\"".into()]);
         transport.assert_request(
-            "eth_getTransactionReceipt",
+            "platon_getTransactionReceipt",
             &["\"0x70ae45a5067fdf3356aa615ca08d925a38c7ff21b486a61e79d5af3969ebc1a1\"".into()],
         );
-        transport.assert_request("eth_blockNumber", &[]);
+        transport.assert_request("platon_blockNumber", &[]);
         transport.assert_request(
-            "eth_getTransactionReceipt",
+            "platon_getTransactionReceipt",
             &["\"0x70ae45a5067fdf3356aa615ca08d925a38c7ff21b486a61e79d5af3969ebc1a1\"".into()],
         );
         transport.assert_no_more_requests();
@@ -302,19 +302,19 @@ mod tests {
                 .address();
         }
 
-        transport.assert_request("eth_sendTransaction", &[
+        transport.assert_request("platon_sendTransaction", &[
             "{\"data\":\"0x60ad61002f600b82828239805160001a6073146000811461001f57610021565bfe5b5030600052607381538281f3fe73000000000000000000000000000000000000000030146080604052600436106056576000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff168063f8a8fd6d14605b575b600080fd5b60616077565b6040518082815260200191505060405180910390f35b600061010090509056fea165627a7a72305820b50091adcb7ef9987dd8daa665cec572801bf8243530d70d52631f9d5ddb943e0029\",\"from\":\"0x0000000000000000000000000000000000000000\"}"
             .into()]);
-        transport.assert_request("eth_newBlockFilter", &[]);
-        transport.assert_request("eth_getFilterChanges", &["\"0x0\"".into()]);
-        transport.assert_request("eth_getFilterChanges", &["\"0x0\"".into()]);
+        transport.assert_request("platon_newBlockFilter", &[]);
+        transport.assert_request("platon_getFilterChanges", &["\"0x0\"".into()]);
+        transport.assert_request("platon_getFilterChanges", &["\"0x0\"".into()]);
         transport.assert_request(
-            "eth_getTransactionReceipt",
+            "platon_getTransactionReceipt",
             &["\"0x70ae45a5067fdf3356aa615ca08d925a38c7ff21b486a61e79d5af3969ebc1a1\"".into()],
         );
-        transport.assert_request("eth_blockNumber", &[]);
+        transport.assert_request("platon_blockNumber", &[]);
         transport.assert_request(
-            "eth_getTransactionReceipt",
+            "platon_getTransactionReceipt",
             &["\"0x70ae45a5067fdf3356aa615ca08d925a38c7ff21b486a61e79d5af3969ebc1a1\"".into()],
         );
         transport.assert_no_more_requests();
@@ -328,20 +328,20 @@ mod tests {
             let _ = builder.execute(main_code, (), Address::zero()).unwrap().wait().unwrap();
         }
 
-        transport.assert_request("eth_sendTransaction", &[
+        transport.assert_request("platon_sendTransaction", &[
             "{\"data\":\"0x608060405234801561001057600080fd5b5061013f806100206000396000f3fe608060405260043610610041576000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff168063f8a8fd6d14610046575b600080fd5b34801561005257600080fd5b5061005b610071565b6040518082815260200191505060405180910390f35b600073600515dfe465f600f0c9793fa27cd2794f3ec0e163f8a8fd6d6040518163ffffffff167c010000000000000000000000000000000000000000000000000000000002815260040160206040518083038186803b1580156100d357600080fd5b505af41580156100e7573d6000803e3d6000fd5b505050506040513d60208110156100fd57600080fd5b810190808051906020019092919050505090509056fea165627a7a72305820580d3776b3d132142f431e141a2e20bd4dd4907fa304feea7b604e8f39ed59520029\",\"from\":\"0x0000000000000000000000000000000000000000\"}"
             .into()]);
 
-        transport.assert_request("eth_newBlockFilter", &[]);
-        transport.assert_request("eth_getFilterChanges", &["\"0x0\"".into()]);
-        transport.assert_request("eth_getFilterChanges", &["\"0x0\"".into()]);
+        transport.assert_request("platon_newBlockFilter", &[]);
+        transport.assert_request("platon_getFilterChanges", &["\"0x0\"".into()]);
+        transport.assert_request("platon_getFilterChanges", &["\"0x0\"".into()]);
         transport.assert_request(
-            "eth_getTransactionReceipt",
+            "platon_getTransactionReceipt",
             &["\"0x70ae45a5067fdf3356aa615ca08d925a38c7ff21b486a61e79d5af3969ebc1a1\"".into()],
         );
-        transport.assert_request("eth_blockNumber", &[]);
+        transport.assert_request("platon_blockNumber", &[]);
         transport.assert_request(
-            "eth_getTransactionReceipt",
+            "platon_getTransactionReceipt",
             &["\"0x70ae45a5067fdf3356aa615ca08d925a38c7ff21b486a61e79d5af3969ebc1a1\"".into()],
         );
         transport.assert_no_more_requests();
